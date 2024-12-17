@@ -1,0 +1,81 @@
+# Python & Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+db.sqlite3
+*.sqlite3
+*.log
+*.env
+.env/
+.envrc
+*.ini
+*.cfg
+*.DS_Store
+*.egg-info/
+*.log
+*.bak
+*.swp
+local_settings.py
+media/
+staticfiles/
+
+# Ignore migrations
+**/migrations/* 
+!**/migrations/__init__.py
+
+# Virtual environment
+venv/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build files
+build/
+dist/
+coverage/
+*.tgz
+*.tar.gz
+
+# React build files
+*.map
+.DS_Store
+public/
+*.lock
+package-lock.json
+yarn.lock
+eslint-debug.log
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Testing and Coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,test
+
+# Ignore uploads
+uploads/
+geotagged_images/
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
