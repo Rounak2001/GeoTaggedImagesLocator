@@ -28,7 +28,7 @@ const FarmerDataTable = () => {
     }
 
     try {
-      await axios.delete(`https://geotaggedimageslocator-2.onrender.com/api/post-data/${farmerId}/`);
+      await axios.delete(`http://127.0.0.1:8000/api/post-data/${farmerId}/`);
       setFarmerData(farmerData.filter((farmer) => farmer.id !== farmerId));
     } catch (err) {
       console.error('Error deleting farmer data:', err);

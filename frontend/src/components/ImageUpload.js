@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'; 
 import axios from 'axios';
-// import MapComponent from './MapComponent';
+import MapComponent from './MapComponent';
 
 const ImageUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
