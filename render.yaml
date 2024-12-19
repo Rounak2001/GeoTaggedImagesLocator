@@ -12,9 +12,9 @@ services:
     buildCommand: "./build.sh"
     startCommand: "python -m gunicorn agritech.asgi:application -k uvicorn.workers.UvicornWorker"
     envVars:
-      - key: DATABASE_URL
+      - key: postgresql://agritech_bo5b_user:ZBow19I2hNNq3LjBpymBuDv4stQCTItJ@dpg-cti04kdumphs73fn5mkg-a/agritech_bo5b
         fromDatabase:
-          name: mysitedb
+          name: agritech
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
