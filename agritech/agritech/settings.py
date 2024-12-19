@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'agritech.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://agritech_bo5b_user:ZBow19I2hNNq3LjBpymBuDv4stQCTItJ@dpg-cti04kdumphs73fn5mkg-a.oregon-postgres.render.com/agritech_bo5b',
+        default='postgresql://agritech_bo5b_user:ZBow19I2hNNq3LjBpymBuDv4stQCTItJ@dpg-cti04kdumphs73fn5mkg-a/agritech_bo5b',
         conn_max_age=600
     )
 }

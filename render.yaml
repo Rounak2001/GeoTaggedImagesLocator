@@ -7,12 +7,12 @@ databases:
 services:
   - type: web
     plan: free
-    name: mysite
+    name: agritech
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: "./agritech/build.sh"
     startCommand: "python -m gunicorn agritech.asgi:application -k uvicorn.workers.UvicornWorker"
     envVars:
-      - key: postgresql://agritech_bo5b_user:ZBow19I2hNNq3LjBpymBuDv4stQCTItJ@dpg-cti04kdumphs73fn5mkg-a/agritech_bo5b
+      - key: DATABASE_URL
         fromDatabase:
           name: agritech
           property: connectionString
