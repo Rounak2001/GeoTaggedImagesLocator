@@ -31,7 +31,7 @@ const MapComponent = () => {
 
   const fetchAllMarkers = useCallback(async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/post-data/');
+      const response = await axios.get('https://geotaggedimageslocator-2.onrender.com/api/post-data/');
       
       const validMarkers = response.data
         .filter(marker => 

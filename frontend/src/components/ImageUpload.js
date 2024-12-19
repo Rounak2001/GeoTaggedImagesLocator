@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'; 
 import axios from 'axios';
-import MapComponent from './MapComponent';
+// import MapComponent from './MapComponent';
 
 const ImageUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -72,7 +72,7 @@ const ImageUpload = () => {
       setError(null);
       setUploadStatus('Uploading...');
 
-      const response = await axios.post('http://127.0.0.1:8000/api/upload/', formData, {
+      const response = await axios.post('https://geotaggedimageslocator-2.onrender.com/api/upload/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

@@ -9,7 +9,7 @@ const FarmerDataTable = () => {
   useEffect(() => {
     const fetchFarmerData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/post-data/');
+        const response = await axios.get('https://geotaggedimageslocator-2.onrender.com/api/post-data/');
         setFarmerData(response.data);
         setIsLoading(false);
       } catch (err) {
@@ -28,7 +28,7 @@ const FarmerDataTable = () => {
     }
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/post-data/${farmerId}/`);
+      await axios.delete(`https://geotaggedimageslocator-2.onrender.com/api/post-data/${farmerId}/`);
       setFarmerData(farmerData.filter((farmer) => farmer.id !== farmerId));
     } catch (err) {
       console.error('Error deleting farmer data:', err);
