@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   GoogleMap, 
-  LoadScript, 
+  useJsApiLoader,  // Changed from LoadScript
   Marker, 
   InfoWindow 
 } from '@react-google-maps/api';
@@ -13,152 +13,138 @@ const MapComponent = () => {
   const [mapError, setMapError] = useState(null);
   const mapRef = useRef(null);
 
-  // Fetch ALL markers from backend
-  const fetchAllMarkers = useCallback(async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/api/post-data/');
-      
-      // Validate markers before setting
-      const validMarkers = response.data.filter(marker => 
-        marker.latitude && 
-        marker.longitude && 
-        !isNaN(marker.latitude) && 
-        !isNaN(marker.longitude)
-      );
+  // Use useJsApiLoader instead of LoadScript
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyBw7zJazs8P2Bm5L9B4lhvLHoomXm_gaKM", // Replace with your API key
+    id: 'google-map-script'
+  });
 
-      // Ensure unique markers and sort
-      const uniqueMarkers = Array.from(
-        new Map(validMarkers.map(marker => [marker.id, marker])).values()
-      ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      setMarkers(uniqueMarkers);
-
-      // Clear any previous map errors
-      setMapError(null);
-    } catch (error) {
-      console.error('Error fetching all markers:', error);
-      setMapError('Failed to fetch markers. Please check your backend connection.');
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAllMarkers();
-
-    // Polling every 30 seconds to get ALL markers
-    const intervalId = setInterval(fetchAllMarkers, 30000);
-
-    // Cleanup
-    return () => clearInterval(intervalId);
-  }, [fetchAllMarkers]);
-
-  // Calculate map center
-  const getMapCenter = () => {
-    if (markers.length === 0) {
-      return { lat: 20.5937, lng: 78.9629 }; // India center
-    }
-
-    const totalLat = markers.reduce((sum, marker) => sum + marker.latitude, 0);
-    const totalLng = markers.reduce((sum, marker) => sum + marker.longitude, 0);
-
-    return {
-      lat: totalLat / markers.length,
-      lng: totalLng / markers.length
-    };
-  };
-
-  // Determine zoom level based on markers
-  const getZoomLevel = () => {
-    if (markers.length <= 1) return 10;
-    if (markers.length <= 5) return 8;
-    return 7;
-  };
-
-  // Map container style
   const mapContainerStyle = {
     width: '100%',
     height: '500px'
   };
 
-  // Handle map initialization
-  const onMapLoad = (map) => {
-    mapRef.current = map;
+  const defaultCenter = {
+    lat: 20.5937,
+    lng: 78.9629
   };
 
-  // Handle map initialization error
-  const onMapLoadError = (error) => {
-    console.error('Google Maps API failed to load:', error);
-    setMapError('Google Maps API failed to load. Please try refreshing the page.');
-  };
+  const fetchAllMarkers = useCallback(async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/post-data/');
+      
+      const validMarkers = response.data
+        .filter(marker => 
+          marker.latitude && 
+          marker.longitude && 
+          !isNaN(parseFloat(marker.latitude)) && 
+          !isNaN(parseFloat(marker.longitude))
+        )
+        .map(marker => ({
+          ...marker,
+          latitude: parseFloat(marker.latitude),
+          longitude: parseFloat(marker.longitude)
+        }));
+
+      setMarkers(validMarkers);
+    } catch (error) {
+      console.error('Error fetching markers:', error);
+      setMapError('Failed to fetch markers');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      fetchAllMarkers();
+    }
+  }, [isLoaded, fetchAllMarkers]);
+
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+    
+    if (markers.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      markers.forEach(marker => {
+        bounds.extend({ 
+          lat: parseFloat(marker.latitude), 
+          lng: parseFloat(marker.longitude) 
+        });
+      });
+      map.fitBounds(bounds);
+    }
+  }, [markers]);
+
+  if (loadError) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-red-50">
+        <div className="text-red-600">
+          Error loading maps. Please check your API key.
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[500px] relative">
       {mapError && (
-        <div className="absolute top-2 left-2 z-10 bg-red-100 text-red-800 p-2 rounded-md shadow-md">
+        <div className="absolute top-2 left-2 z-10 bg-red-100 text-red-800 p-3 rounded-md shadow-md">
           {mapError}
         </div>
       )}
 
-      <div className="absolute top-2 left-2 z-10 bg-white p-2 rounded-md shadow-md">
-        <span className="font-bold">Total Markers:</span> {markers.length}
-      </div>
-
-      <LoadScript
-        googleMapsApiKey="AIzaSyBw7zJazs8P2Bm5L9B4lhvLHoomXm_gaKM" // IMPORTANT: Replace with your valid API key
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={defaultCenter}
+        zoom={5}
         onLoad={onMapLoad}
-        onError={onMapLoadError}
+        options={{
+          fullscreenControl: true,
+          streetViewControl: false,
+          mapTypeControl: true,
+          zoomControl: true,
+        }}
       >
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={getMapCenter()}
-          zoom={getZoomLevel()}
-          onLoad={(map) => onMapLoad(map)}
-        >
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              position={{
-                lat: parseFloat(marker.latitude),
-                lng: parseFloat(marker.longitude)
-              }}
-              title={marker.farmer_name}
-              icon={{
-                url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                scaledSize: new window.google.maps.Size(40, 40)
-              }}
-              onClick={() => setSelectedMarker(marker)}
-            />
-          ))}
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            position={{
+              lat: marker.latitude,
+              lng: marker.longitude
+            }}
+            title={marker.farmer_name}
+            onClick={() => setSelectedMarker(marker)}
+          />
+        ))}
 
-          {selectedMarker && (
-            <InfoWindow
-              position={{
-                lat: parseFloat(selectedMarker.latitude),
-                lng: parseFloat(selectedMarker.longitude)
-              }}
-              onCloseClick={() => setSelectedMarker(null)}
-            >
-              <div className="p-2 max-w-[300px]">
-                <h3 className="font-bold text-lg mb-2">{selectedMarker.farmer_name}</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <p><strong>Farmer ID:</strong> {selectedMarker.farmer_id || 'N/A'}</p>
-                  <p><strong>Plant Type:</strong> {selectedMarker.plant_type || 'Not Specified'}</p>
-                  <p><strong>Plant Count:</strong> {selectedMarker.plant_count || 'N/A'}</p>
-                  <p><strong>Latitude:</strong> {parseFloat(selectedMarker.latitude).toFixed(6)}</p>
-                  <p><strong>Longitude:</strong> {parseFloat(selectedMarker.latitude).toFixed(6)}</p>
-                  <p><strong>Timestamp:</strong> {new Date(selectedMarker.timestamp).toLocaleString()}</p>
-                </div>
-                {selectedMarker.image && (
-                  <img 
-                    src={selectedMarker.image} 
-                    alt="Marker Location" 
-                    className="mt-2 max-w-full h-auto rounded-md"
-                  />
-                )}
+        {selectedMarker && (
+          <InfoWindow
+            position={{
+              lat: selectedMarker.latitude,
+              lng: selectedMarker.longitude
+            }}
+            onCloseClick={() => setSelectedMarker(null)}
+          >
+            <div className="p-3 max-w-[300px]">
+              <h3 className="font-bold text-lg mb-2">{selectedMarker.farmer_name}</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <p><strong>Farmer ID:</strong> {selectedMarker.farmer_id || 'N/A'}</p>
+                <p><strong>Plant Type:</strong> {selectedMarker.plant_type || 'N/A'}</p>
+                <p><strong>Plant Count:</strong> {selectedMarker.plant_count || 'N/A'}</p>
+                <p><strong>Latitude:</strong> {selectedMarker.latitude.toFixed(6)}</p>
+                <p><strong>Longitude:</strong> {selectedMarker.longitude.toFixed(6)}</p>
               </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
     </div>
   );
 };

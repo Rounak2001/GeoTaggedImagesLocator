@@ -23,6 +23,10 @@ const FarmerDataTable = () => {
   }, []);
 
   const handleDelete = async (farmerId) => {
+    if (!window.confirm('Are you sure you want to delete this record?')) {
+      return;
+    }
+
     try {
       await axios.delete(`http://127.0.0.1:8000/api/post-data/${farmerId}/`);
       setFarmerData(farmerData.filter((farmer) => farmer.id !== farmerId));
@@ -33,47 +37,97 @@ const FarmerDataTable = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Farmer Data</h1>
+    <div className="overflow-hidden">
+      <div className="p-6 border-b">
+        <h2 className="text-xl font-semibold text-gray-800">Farmer Records</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Total Records: {farmerData.length}
+        </p>
+      </div>
 
       {isLoading ? (
-        <div className="text-center">Loading...</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
       ) : error ? (
-        <div className="text-red-500 text-center">{error}</div>
+        <div className="p-6 text-center">
+          <div className="text-red-500 bg-red-50 p-4 rounded-md">
+            <p className="font-medium">{error}</p>
+          </div>
+        </div>
       ) : (
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4 text-left">Farmer Name</th>
-              <th className="py-2 px-4 text-left">Farmer ID</th>
-              <th className="py-2 px-4 text-left">Plant Type</th>
-              <th className="py-2 px-4 text-left">Plant Count</th>
-              <th className="py-2 px-4 text-left">Latitude</th>
-              <th className="py-2 px-4 text-left">Longitude</th>
-              <th className="py-2 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {farmerData.map((farmer) => (
-              <tr key={farmer.id} className="border-b">
-                <td className="py-2 px-4">{farmer.farmer_name || 'N/A'}</td>
-                <td className="py-2 px-4">{farmer.farmer_id || 'N/A'}</td>
-                <td className="py-2 px-4">{farmer.plant_type || 'N/A'}</td>
-                <td className="py-2 px-4">{farmer.plant_count || 'N/A'}</td>
-                <td className="py-2 px-4">{farmer.latitude || 'N/A'}</td>
-                <td className="py-2 px-4">{farmer.longitude || 'N/A'}</td>
-                <td className="py-2 px-4">
-                  <button
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => handleDelete(farmer.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Farmer Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Farmer ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plant Details
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Location
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {farmerData.map((farmer) => (
+                <tr 
+                  key={farmer.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {farmer.farmer_name || 'N/A'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-500">
+                      {farmer.farmer_id || 'N/A'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {farmer.plant_type || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Count: {farmer.plant_count || 'N/A'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-500">
+                      Lat: {farmer.latitude?.toFixed(6) || 'N/A'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Long: {farmer.longitude?.toFixed(6) || 'N/A'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleDelete(farmer.id)}
+                      className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {farmerData.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No farmer records found</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
