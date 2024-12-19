@@ -1,7 +1,7 @@
 databases:
   - name: agritech
     plan: free
-    databaseName: dpg-cti04kdumphs73fn5mkg-a
+    databaseName: agritech
     user: agritech_bo5b_user
 
 services:
