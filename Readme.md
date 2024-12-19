@@ -52,7 +52,7 @@ This project enables geotagged image processing, text extraction, and visualizat
 - **Gemini LLM**: Processes extracted text to identify structured details.
 
 ### Database:
-- **SQLite** (default) or any other relational database supported by Django.
+- **POSTGRES** For storing all the data .
 
 ### Deployment:
 - Local setup with Django development server and React frontend.
@@ -70,14 +70,15 @@ Follow these steps to set up the project locally:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/geo-tagging-project.git
-cd geo-tagging-project
+git clone https://github.com/Rounak2001/GeoTaggedImagesLocator.git
+cd GeoTaggedImagesLocator
+
 ```
 
 ### 2. Backend Setup
 1. Navigate to the backend directory:
    ```bash
-   cd backend
+   cd agritech
    ```
 2. Create a virtual environment and install dependencies:
    ```bash
@@ -169,6 +170,7 @@ The following advanced techniques can be implemented optionally to improve OCR a
 ---
 
 ## Future Enhancements
+- Adding websockets for smooth data exchange between frontend and backend
 - Implement pre-processing techniques for advanced OCR handling.
 - Support multiple languages for text extraction.
 - Deploy the project to a cloud platform (e.g., AWS, Azure).
